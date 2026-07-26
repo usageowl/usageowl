@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UsageOwl — product renders</title>
+<style>
+  :root {
+    --card: #232327;
+    --card2: rgba(255,255,255,0.055);
+    --line: rgba(255,255,255,0.09);
+    --txt: #f5f5f7;
+    --sub: #9d9da3;
+    --green: #34d399;
+    --amber: #f0b429;
+    --red: #ff5a52;
+    --blue: #0a84ff;
+    --claude: #d97857;
+    --kimi: #3b82f6;
+    --codex: #10a382;
+    --copilot: #8b5cf6;
+    --moonshot: #f59e1f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage { display: inline-block; padding: 0; }
+
+  /* ---------- popup ---------- */
+  .popup {
+    width: 340px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--txt);
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .popup-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .popup-head .title { font-weight: 600; font-size: 13.5px; }
+  .popup-head .sp { flex: 1; }
+  .icon-btn { width: 15px; height: 15px; color: #c7c7cc; display: block; }
+  .cards { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
+  .pcard { background: var(--card2); border-radius: 10px; padding: 10px; }
+  .pcard-head { display: flex; align-items: center; gap: 7px; }
+  .pcard-name { font-weight: 600; font-size: 13.5px; }
+  .plan {
+    font-size: 10px; font-weight: 500;
+    padding: 2px 6px; border-radius: 999px;
+  }
+  .pcard-head .sp { flex: 1; }
+  .glyph { width: 14px; height: 14px; display: block; }
+  .pct { font-weight: 700; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .win { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+  .win:first-of-type { border-top: 0; }
+  .win-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .win-label { font-weight: 500; font-size: 13px; }
+  .win-reset { font-size: 11px; color: var(--sub); }
+  .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.12); margin-top: 6px; overflow: hidden; }
+  .bar > div { height: 100%; border-radius: 2px; }
+  .win-used { font-size: 11px; color: var(--sub); margin-top: 4px; }
+  .balance { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--txt); margin-top: 10px; }
+  .balance svg { width: 12px; height: 12px; color: var(--sub); }
+  .menubar-pick { padding: 10px 12px; border-top: 1px solid var(--line); }
+  .menubar-pick .cap { font-size: 10px; font-weight: 600; color: var(--sub); letter-spacing: 0.02em; margin-bottom: 7px; }
+  .pick-row { display: flex; align-items: center; gap: 8px; padding: 3.5px 0; }
+  .pick-row .glyph { width: 13px; height: 13px; }
+  .pick-row .nm { font-size: 13px; }
+  .pick-row .sp { flex: 1; }
+  .switch {
+    width: 28px; height: 16px; border-radius: 999px;
+    background: #3a3a3c; position: relative; flex: none;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 12px; height: 12px; border-radius: 999px; background: #fff;
+  }
+  .switch.on { background: var(--blue); }
+  .switch.on::after { left: 14px; }
+  .popup-foot {
+    display: flex; justify-content: space-between;
+    padding: 8px 12px; border-top: 1px solid var(--line);
+    font-size: 10px; color: var(--sub);
+  }
+
+  /* ---------- macOS menu bar ---------- */
+  .osbar {
+    display: flex; align-items: center; gap: 14px;
+    height: 26px; padding: 0 14px;
+    background: rgba(16,16,18,0.92);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 12.5px; font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .osbar .item { display: flex; align-items: center; gap: 5px; }
+  .osbar .glyph { width: 13px; height: 13px; }
+  .osbar .sep { width: 1px; height: 14px; background: rgba(255,255,255,0.14); }
+  .osbar .amber { color: var(--amber); }
+
+  /* ---------- notification ---------- */
+  .notify {
+    width: 360px;
+    background: rgba(28,28,31,0.96);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    color: var(--txt);
+  }
+  .notify-top { display: flex; align-items: center; gap: 8px; }
+  .notify-app { width: 20px; height: 20px; border-radius: 5px; background: #0c111b; display: flex; align-items: center; justify-content: center; }
+  .notify-app svg { width: 13px; height: 13px; }
+  .notify-title-sm { font-size: 11px; color: var(--sub); font-weight: 600; letter-spacing: 0.02em; }
+  .notify-time { margin-left: auto; font-size: 11px; color: var(--sub); }
+  .notify-title { font-size: 13.5px; font-weight: 700; margin-top: 8px; }
+  .notify-body { font-size: 12.5px; color: #c7c7cc; margin-top: 2px; }
+  .notify-meter { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .notify-meter .bar { flex: 1; margin-top: 0; }
+  .notify-meter .pct { color: var(--amber); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ============ POPUP ============ -->
+<div class="stage" id="shot-popup">
+  <div class="popup">
+    <div class="popup-head">
+      <svg class="glyph" viewBox="0 0 64 64" style="width:15px;height:15px"><path d="M15 9 L26 19 L15 21 Z" fill="#F0B429"/><path d="M49 9 L38 19 L49 21 Z" fill="#F0B429"/><circle cx="32" cy="36" r="21" stroke="#F0B429" stroke-width="3.5" fill="none"/><circle cx="24" cy="33" r="7" fill="#F0B429"/><circle cx="40" cy="33" r="7" fill="#F0B429"/><circle cx="24" cy="33" r="2.8" fill="#232327"/><circle cx="40" cy="33" r="2.8" fill="#232327"/><path d="M32 41 L28.5 46.5 L35.5 46.5 Z" fill="#F0B429"/></svg>
+      <span class="title">UsageOwl</span>
+      <span class="sp"></span>
+      <svg class="icon-btn" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8a6 6 0 1 1-1.76-4.24"/><path d="M14 2v4h-4"/></svg>
+      <svg class="icon-btn" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M12.6 3.4l-1.3 1.3M4.7 11.3l-1.3 1.3" stroke-linecap="round"/></svg>
+      <svg class="icon-btn" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M8 1.5v6"/><path d="M4.1 3.6a6 6 0 1 0 7.8 0"/></svg>
+    </div>
+
+    <div class="cards">
+      <!-- Claude -->
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="pcard-name">Claude</span>
+          <span class="plan" style="color:var(--claude);background:rgba(217,120,87,0.16)">Max</span>
+          <span class="sp"></span>
+          <svg class="glyph" viewBox="0 0 64 64"><g fill="#D97857"><path d="M30 6l2 22-2 0z" transform="rotate(0 32 32) translate(-2 0)"/><path d="M32 8l3 20h-6z"/><path d="M32 8l3 20h-6z" transform="rotate(60 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(120 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(180 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(240 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(300 32 32)"/></g></svg>
+          <span class="pct" style="color:var(--amber)">91%</span>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Session (5 hour)</span><span class="win-reset">Resets in 41m</span></div>
+          <div class="bar"><div style="width:91%;background:var(--red)"></div></div>
+          <div class="win-used">91% used</div>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Weekly (7 day)</span><span class="win-reset">Resets on 25 Jul at 9:00 AM</span></div>
+          <div class="bar"><div style="width:46%;background:var(--green)"></div></div>
+          <div class="win-used">46% used</div>
+        </div>
+      </div>
+
+      <!-- Kimi -->
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="pcard-name">Kimi</span>
+          <span class="plan" style="color:var(--kimi);background:rgba(59,130,246,0.16)">Intermediate</span>
+          <span class="sp"></span>
+          <svg class="glyph" viewBox="0 0 64 64"><path d="M40 6a26 26 0 1 0 0 52A30 30 0 0 1 40 6z" fill="#3B82F6"/></svg>
+          <span class="pct">32%</span>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Weekly (7 day)</span><span class="win-reset">Resets on 25 Jul at 1:53 AM</span></div>
+          <div class="bar"><div style="width:32%;background:var(--green)"></div></div>
+          <div class="win-used">32% used</div>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Session (5 hour)</span><span class="win-reset">Resets at 22:53</span></div>
+          <div class="bar"><div style="width:18%;background:var(--green)"></div></div>
+          <div class="win-used">18% used</div>
+        </div>
+      </div>
+
+      <!-- Codex -->
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="pcard-name">Codex</span>
+          <span class="plan" style="color:var(--codex);background:rgba(16,163,130,0.16)">ChatGPT Plus</span>
+          <span class="sp"></span>
+          <svg class="glyph" viewBox="0 0 64 64"><path d="M32 6l22.5 13v26L32 58 9.5 45V19z" fill="#10A382"/><circle cx="32" cy="32" r="8" fill="#232327"/></svg>
+          <span class="pct">4%</span>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Primary (5 hour)</span><span class="win-reset">Resets at 20:15</span></div>
+          <div class="bar"><div style="width:4%;background:var(--green)"></div></div>
+          <div class="win-used">4% used</div>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Secondary (weekly)</span><span class="win-reset">Resets on 24 Jul at 6:00 PM</span></div>
+          <div class="bar"><div style="width:11%;background:var(--green)"></div></div>
+          <div class="win-used">11% used</div>
+        </div>
+      </div>
+
+      <!-- Copilot -->
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="pcard-name">Copilot</span>
+          <span class="plan" style="color:var(--copilot);background:rgba(139,92,246,0.16)">Individual</span>
+          <span class="sp"></span>
+          <svg class="glyph" viewBox="0 0 64 64"><path d="M32 4l6.5 21.5L60 32l-21.5 6.5L32 60l-6.5-21.5L4 32l21.5-6.5z" fill="#8B5CF6"/></svg>
+          <span class="pct">41%</span>
+        </div>
+        <div class="win">
+          <div class="win-row"><span class="win-label">Premium interactions</span><span class="win-reset">Resets on 1 Aug</span></div>
+          <div class="bar"><div style="width:41%;background:var(--green)"></div></div>
+          <div class="win-used">41% used</div>
+        </div>
+      </div>
+
+      <!-- Moonshot -->
+      <div class="pcard">
+        <div class="pcard-head">
+          <span class="pcard-name">Moonshot</span>
+          <span class="plan" style="color:var(--moonshot);background:rgba(245,158,31,0.16)">Pay-as-you-go</span>
+          <span class="sp"></span>
+          <svg class="glyph" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#F59E1F"/><ellipse cx="32" cy="32" rx="26" ry="8" fill="none" stroke="#F59E1F" stroke-width="4" transform="rotate(-18 32 32)"/></svg>
+          <span class="pct">$14</span>
+        </div>
+        <div class="balance">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="3.5" width="14" height="9.5" rx="1.5"/><path d="M1 6.5h14"/></svg>
+          $14.02 balance · $6.20 this month · auto top-up on
+        </div>
+      </div>
+    </div>
+
+    <div class="menubar-pick">
+      <div class="cap">MENU BAR</div>
+      <div class="pick-row"><svg class="glyph" viewBox="0 0 64 64"><g fill="#F5F5F7"><path d="M32 8l3 20h-6z"/><path d="M32 8l3 20h-6z" transform="rotate(60 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(120 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(180 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(240 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(300 32 32)"/></g></svg><span class="nm">Claude</span><span class="sp"></span><span class="switch on"></span></div>
+      <div class="pick-row"><svg class="glyph" viewBox="0 0 64 64"><path d="M40 6a26 26 0 1 0 0 52A30 30 0 0 1 40 6z" fill="#F5F5F7"/></svg><span class="nm">Kimi</span><span class="sp"></span><span class="switch on"></span></div>
+      <div class="pick-row"><svg class="glyph" viewBox="0 0 64 64"><path d="M32 6l22.5 13v26L32 58 9.5 45V19z" fill="#F5F5F7"/><circle cx="32" cy="32" r="8" fill="#232327"/></svg><span class="nm">Codex</span><span class="sp"></span><span class="switch on"></span></div>
+      <div class="pick-row"><svg class="glyph" viewBox="0 0 64 64"><path d="M32 4l6.5 21.5L60 32l-21.5 6.5L32 60l-6.5-21.5L4 32l21.5-6.5z" fill="#F5F5F7"/></svg><span class="nm">Copilot</span><span class="sp"></span><span class="switch"></span></div>
+      <div class="pick-row"><svg class="glyph" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#F5F5F7"/><ellipse cx="32" cy="32" rx="26" ry="8" fill="none" stroke="#F5F5F7" stroke-width="4" transform="rotate(-18 32 32)"/></svg><span class="nm">Moonshot</span><span class="sp"></span><span class="switch"></span></div>
+    </div>
+
+    <div class="popup-foot"><span>Last updated: 19:24</span><span>No telemetry</span></div>
+  </div>
+</div>
+
+<!-- ============ MENU BAR ============ -->
+<div class="stage" id="shot-menubar">
+  <div class="osbar">
+    <span class="item">
+      <svg class="glyph" viewBox="0 0 64 64"><path d="M15 9 L26 19 L15 21 Z" fill="#F0B429"/><path d="M49 9 L38 19 L49 21 Z" fill="#F0B429"/><circle cx="32" cy="36" r="21" stroke="#F0B429" stroke-width="3.5" fill="none"/><circle cx="24" cy="33" r="7" fill="#F0B429"/><circle cx="40" cy="33" r="7" fill="#F0B429"/><circle cx="24" cy="33" r="2.8" fill="#101012"/><circle cx="40" cy="33" r="2.8" fill="#101012"/><path d="M32 41 L28.5 46.5 L35.5 46.5 Z" fill="#F0B429"/></svg>
+    </span>
+    <span class="sep"></span>
+    <span class="item"><svg class="glyph" viewBox="0 0 64 64"><g fill="#fff"><path d="M32 8l3 20h-6z"/><path d="M32 8l3 20h-6z" transform="rotate(60 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(120 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(180 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(240 32 32)"/><path d="M32 8l3 20h-6z" transform="rotate(300 32 32)"/></g></svg><span class="amber">91%</span></span>
+    <span class="item"><svg class="glyph" viewBox="0 0 64 64"><path d="M40 6a26 26 0 1 0 0 52A30 30 0 0 1 40 6z" fill="#fff"/></svg><span>18%</span></span>
+    <span class="item"><svg class="glyph" viewBox="0 0 64 64"><path d="M32 6l22.5 13v26L32 58 9.5 45V19z" fill="#fff"/><circle cx="32" cy="32" r="8" fill="#101012"/></svg><span>4%</span></span>
+  </div>
+</div>
+
+<!-- ============ NOTIFICATION ============ -->
+<div class="stage" id="shot-notify">
+  <div class="notify">
+    <div class="notify-top">
+      <span class="notify-app">
+        <svg viewBox="0 0 64 64"><path d="M15 9 L26 19 L15 21 Z" fill="#F0B429"/><path d="M49 9 L38 19 L49 21 Z" fill="#F0B429"/><circle cx="32" cy="36" r="21" stroke="#F0B429" stroke-width="3.5" fill="none"/><circle cx="24" cy="33" r="7" fill="#F0B429"/><circle cx="40" cy="33" r="7" fill="#F0B429"/><circle cx="24" cy="33" r="2.8" fill="#0C111B"/><circle cx="40" cy="33" r="2.8" fill="#0C111B"/><path d="M32 41 L28.5 46.5 L35.5 46.5 Z" fill="#F0B429"/></svg>
+      </span>
+      <span class="notify-title-sm">USAGEOWL</span>
+      <span class="notify-time">now</span>
+    </div>
+    <div class="notify-title">Claude 5-hour window at 91%</div>
+    <div class="notify-body">Resets in 41m — warned before the wall, not after.</div>
+    <div class="notify-meter">
+      <div class="bar"><div style="width:91%;background:var(--red)"></div></div>
+      <span class="pct">91%</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,617 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f6f8fe;
+  --surface: #ffffff;
+  --surface2: #eef2fb;
+  --ink: #111827;
+  --fade: #4b5563;
+  --dim: #5f6774;
+  --line: #e3e8f4;
+  --line2: #d6deef;
+  --green: #16a34a;
+  --greenbright: #15803d;
+  --term: #0c111b;
+  --tline: #222d42;
+  --tpaper: #e9eefb;
+  --tfade: #9fb0cf;
+  --tdim: #5f7191;
+  --tgreen: #34d399;
+  --owl: #f0b429;
+  --owlbright: #d99b16;
+  --grid-rgb: 59 130 246;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fade);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--green);
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* ---------- typography helpers ---------- */
+
+/* tabular numerals everywhere numbers appear */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* small uppercase technical label */
+.label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- skip link ---------- */
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  transform: translateY(-300%);
+  background: var(--ink);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  transition: transform 0.2s var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ---------- loader (CSS fallback so the overlay never traps the page) ---------- */
+
+.loader {
+  animation: loader-hide 0.01s linear 2.2s forwards;
+}
+
+@keyframes loader-hide {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* ---------- nav theming (set from scene ranges) ---------- */
+
+.site-nav {
+  color: var(--ink);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  transition:
+    color 0.35s var(--ease-out),
+    background-color 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out);
+}
+
+.site-nav[data-theme='term'] {
+  color: var(--tpaper);
+  background: var(--term);
+  border-bottom-color: var(--tline);
+}
+
+.site-nav[data-theme='amber'] {
+  color: var(--ink);
+  background: var(--owl);
+  border-bottom-color: rgb(17 24 39 / 0.18);
+}
+
+.site-nav .nav-fill {
+  background: var(--green);
+}
+
+.site-nav[data-theme='term'] .nav-fill {
+  background: var(--tgreen);
+}
+
+.site-nav[data-theme='amber'] .nav-fill {
+  background: var(--ink);
+}
+
+.nav-link {
+  opacity: 0.65;
+  transition:
+    opacity 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  opacity: 1;
+}
+
+.nav-link[data-active='true'] {
+  opacity: 1;
+  color: var(--green);
+}
+
+.site-nav[data-theme='term'] .nav-link[data-active='true'] {
+  color: var(--tgreen);
+}
+
+.site-nav[data-theme='amber'] .nav-link[data-active='true'] {
+  color: var(--ink);
+}
+
+/* Over the climax scene the nav band itself turns owl amber, so an amber
+   button would dissolve into it. Invert for that scene only — ink fill,
+   amber text — which keeps the tip jar legible without changing its identity. */
+.site-nav[data-theme='amber'] .btn-owl {
+  background-color: var(--ink);
+  color: var(--owl);
+  box-shadow: none;
+}
+
+.site-nav[data-theme='amber'] .btn-owl:hover,
+.site-nav[data-theme='amber'] .btn-owl:focus-visible {
+  background-color: #000000;
+}
+
+/* ---------- spinyield chrome ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.8rem 1.4rem;
+  transition:
+    transform 150ms var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.btn-green {
+  background-color: var(--green);
+  color: #ffffff;
+  box-shadow: 0 10px 30px -10px color-mix(in srgb, var(--green) 55%, transparent);
+}
+
+.btn-green:hover,
+.btn-green:focus-visible {
+  transform: translateY(-2px);
+  background-color: var(--greenbright);
+}
+
+/* owl amber fill, ink text — the tip jar's own colour, distinct from the
+   green install CTA so the two never compete for the same click. */
+.btn-owl {
+  background-color: var(--owl);
+  color: var(--ink);
+  box-shadow: 0 10px 30px -10px color-mix(in srgb, var(--owl) 55%, transparent);
+}
+
+.btn-owl:hover,
+.btn-owl:focus-visible {
+  transform: translateY(-2px);
+  background-color: var(--owlbright);
+}
+
+.btn-ghost {
+  background-color: color-mix(in srgb, var(--ink) 3%, transparent);
+  color: var(--ink);
+  border: 1px solid var(--line2);
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--dim);
+}
+
+.depth-1 {
+  box-shadow:
+    0 1px 2px rgb(17 24 39 / 0.06),
+    0 10px 30px -12px rgb(30 58 138 / 0.14);
+}
+
+.depth-2 {
+  box-shadow:
+    0 2px 4px rgb(17 24 39 / 0.05),
+    0 12px 28px -10px rgb(30 58 138 / 0.2);
+}
+
+.card-hover {
+  transition:
+    transform 200ms var(--ease-out),
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--green) 45%, transparent);
+  box-shadow:
+    0 2px 4px rgb(17 24 39 / 0.05),
+    0 16px 34px -12px rgb(30 58 138 / 0.22);
+}
+
+.grid-floor {
+  background-image:
+    linear-gradient(rgb(var(--grid-rgb) / 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--grid-rgb) / 0.14) 1px, transparent 1px);
+  background-size: 48px 48px;
+  transform: perspective(420px) rotateX(58deg);
+  transform-origin: center bottom;
+  mask-image: linear-gradient(to top, #000 0%, transparent 78%);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 78%);
+}
+
+.cta-arrow {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @keyframes hero-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  .hero-in {
+    animation: hero-fade-up 0.7s var(--ease-out) backwards;
+    animation-delay: var(--d, 0ms);
+  }
+
+  .cta-arrow {
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .btn:hover .cta-arrow,
+  .btn:focus-visible .cta-arrow,
+  .cta-underline:hover .cta-arrow,
+  .cta-underline:focus-visible .cta-arrow {
+    transform: translateX(4px);
+  }
+
+  .cta-underline .cta-arrow {
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .cta-underline:hover .cta-arrow,
+  .cta-underline:focus-visible .cta-arrow {
+    transform: translate(3px, -3px);
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  .live-dot {
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+
+  .tilt {
+    transform: perspective(1600px) rotateY(-9deg) rotateX(4deg);
+    transition: transform 600ms var(--ease-out);
+  }
+
+  .tilt:hover {
+    transform: none;
+  }
+
+  @keyframes float-y {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .float-y {
+    animation: float-y 6s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+}
+
+/* ======================================================================
+   Scene structure: default = fully readable stacked layout (no-JS and
+   reduced-motion). `.is-film` is added by GSAP init (no-preference only)
+   and switches scenes into their pinned, overlapping choreography layout.
+   ====================================================================== */
+
+/* choreography-only geometry: hidden in static mode, shown in film mode */
+.choreo {
+  display: none;
+}
+
+.is-film .choreo {
+  display: block;
+}
+
+.caps.is-film .c-ticks {
+  display: flex;
+}
+
+/* ---------- 03 thresholds ---------- */
+
+.t-track {
+  display: flex;
+  flex-direction: column;
+}
+
+.t-panel {
+  padding: 12vh 6vw;
+  border-bottom: 1px solid var(--line);
+}
+
+.thr.is-film {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.thr.is-film .t-panel {
+  border-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .thr.is-film .t-track {
+    flex-direction: row;
+    width: max-content;
+    height: 100%;
+  }
+
+  .thr.is-film .t-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 92vw;
+    height: 100%;
+    flex-shrink: 0;
+    padding: 0 0 0 6vw;
+  }
+
+  .thr.is-film .t-panel-final {
+    width: 100vw;
+    align-items: center;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .thr.is-film .t-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+/* ---------- 04 capabilities ---------- */
+
+.caps .c-panel {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16vh 6vw;
+  border-bottom: 1px solid var(--tline);
+}
+
+.caps.is-film {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.caps.is-film .c-panel {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  border-bottom: 0;
+}
+
+/* ---------- 05 owl index ---------- */
+
+.idx .x-stage {
+  display: block;
+  padding: 12vh 6vw;
+}
+
+.idx .x-o {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 8vh;
+}
+
+.idx .x-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.idx .x-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4vw;
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.idx .x-condensed {
+  margin-top: 8vh;
+  text-align: center;
+}
+
+.idx.is-film {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.idx.is-film .x-stage {
+  position: relative;
+  height: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.idx.is-film .x-o {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  transform: translateX(-50%);
+  width: 26vmin;
+  height: 26vmin;
+  margin: 0;
+}
+
+.idx.is-film .x-row {
+  max-width: none;
+  height: 9.5vh;
+  padding: 0;
+}
+
+.idx.is-film .x-condensed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin-top: 0;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 1024px) {
+  .idx.is-film .x-o {
+    left: 8vw;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56vmin;
+    height: 56vmin;
+  }
+}
+
+.idx.is-film .x-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.idx.is-film .x-rows-wrap {
+  position: absolute;
+  left: 6vw;
+  right: 6vw;
+  top: 50%;
+  height: 0;
+  overflow: visible;
+}
+
+@media (min-width: 1024px) {
+  .idx.is-film .x-rows-wrap {
+    left: 52vw;
+    right: 5vw;
+  }
+}
+
+/* ---------- 06 climax ---------- */
+
+.clx .c-layer {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10vh 6vw;
+}
+
+.clx.is-film {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.clx.is-film .c-layer {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  padding: 0 6vw;
+}
+
+/* ---------- 07 final cta ---------- */
+
+.fin .f-mark {
+  display: inline-block;
+  margin: 0 0 6vh;
+}
+
+.fin .f-content {
+  position: relative;
+  padding: 14vh 6vw 40vh;
+}
+
+.fin.is-film {
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.fin.is-film .f-mark {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  margin: 0;
+  z-index: 20;
+}
+
+.fin.is-film .f-content {
+  position: absolute;
+  inset: 0;
+  padding: 0 6vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

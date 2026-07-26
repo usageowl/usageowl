@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Swift / app build
+app/.build/
+app/dist/
+*.xcuserstate
+
+# Website
+website/node_modules/
+website/.next/
+website/out/
+website/.wrangler/
+website/tsconfig.tsbuildinfo
+
+# Env / secrets
+.env
+.env.local
+.dev.vars
+*.pem

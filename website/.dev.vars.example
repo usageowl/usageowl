@@ -1,0 +1,12 @@
+# Stripe (tip jar) — only needed for the Buy-me-a-coffee button.
+# Without these the site builds and renders normally; the button shows
+# "Payments are not configured yet." on click.
+#
+# Local: copy this file to .dev.vars (wrangler pages dev reads it).
+# Production: set the same names in Cloudflare Pages → Settings →
+# Environment variables (or `wrangler pages secret put STRIPE_SECRET_KEY`).
+STRIPE_SECRET_KEY=
+# Optional but recommended — product id from:
+#   node --env-file=.dev.vars tools/create-coffee-product.mjs
+# (without it each checkout creates an inline product in your dashboard)
+STRIPE_COFFEE_PRODUCT_ID=
