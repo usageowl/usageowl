@@ -6,13 +6,19 @@
 #
 # Prerequisites (one-time):
 #   1. A "Developer ID Application" certificate in the login Keychain.
-#   2. A stored notarytool profile named "notarytool":
+#   2. Apple credentials for notarization, either:
 #
-#        xcrun notarytool store-credentials "notarytool" \
-#          --apple-id <your-apple-id> --team-id 2CL3959UYK
+#        export APPLE_ID="you@example.com"
+#        export APPLE_PASSWORD="abcd-efgh-ijkl-mnop"   # app-specific password
+#        export APPLE_TEAM_ID="2CL3959UYK"
 #
-#      It prompts for an app-specific password from appleid.apple.com.
-#      Credentials live in the Keychain — never in this repo.
+#      ...or a stored Keychain profile:
+#
+#        xcrun notarytool store-credentials "notarytool"
+#
+#      Credentials never live in this repo. The app-specific password comes
+#      from appleid.apple.com and belongs to the Apple ID rather than to any
+#      single app, so one is enough for every project signed by this team.
 #
 # Output: dist/UsageOwl-<version>.dmg, notarized and stapled, ready to upload.
 #
@@ -67,7 +73,25 @@ if [ -z "$SIGNING_IDENTITY" ]; then
 fi
 codesign --force --sign "$SIGNING_IDENTITY" "$DMG_PATH"
 
-if ! xcrun notarytool history --keychain-profile "$KEYCHAIN_PROFILE" >/dev/null 2>&1; then
+# Two ways to authenticate, in preference order:
+#
+#   1. APPLE_ID / APPLE_PASSWORD / APPLE_TEAM_ID environment variables. This is
+#      the same convention the Sitful project uses, so one exported set of
+#      credentials covers both. APPLE_PASSWORD is an app-specific password from
+#      appleid.apple.com — it belongs to the Apple ID, not to any one app, so
+#      the one created for Sitful notarization works here unchanged.
+#   2. A stored notarytool keychain profile.
+#
+# Nothing is ever echoed: the password reaches notarytool through the
+# environment and is never printed, logged, or written to disk by this script.
+NOTARY_ARGS=()
+if [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_PASSWORD:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ]; then
+    echo "==> Notarizing with APPLE_ID environment credentials (${APPLE_ID})"
+    NOTARY_ARGS=(--apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID")
+elif xcrun notarytool history --keychain-profile "$KEYCHAIN_PROFILE" >/dev/null 2>&1; then
+    echo "==> Notarizing with stored keychain profile \"$KEYCHAIN_PROFILE\""
+    NOTARY_ARGS=(--keychain-profile "$KEYCHAIN_PROFILE")
+else
     mkdir -p dist
     cp "$DMG_PATH" "dist/$DMG_NAME"
     xattr -cr "dist/$DMG_NAME" 2>/dev/null || true
@@ -77,22 +101,26 @@ if ! xcrun notarytool history --keychain-profile "$KEYCHAIN_PROFILE" >/dev/null 
 
   dist/$DMG_NAME
 
-No notarytool keychain profile named "$KEYCHAIN_PROFILE" was found, so the
-disk image was signed but not submitted to Apple. Gatekeeper will refuse to
-open it on other people's Macs ("Apple cannot check it for malicious
-software"). Do NOT publish this build.
+No Apple credentials were found, so the disk image was signed but never
+submitted to Apple. Gatekeeper will refuse to open it on other people's Macs
+("Apple cannot check it for malicious software"). Do NOT publish this build.
 
-Store credentials once, then re-run this script:
+Provide credentials either way, then re-run:
 
-  xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \\
-    --apple-id <your-apple-id> --team-id 2CL3959UYK
+  # A — environment variables (same as the Sitful project)
+  export APPLE_ID="hello@seoforger.com"
+  export APPLE_PASSWORD="abcd-efgh-ijkl-mnop"   # app-specific password
+  export APPLE_TEAM_ID="2CL3959UYK"
+
+  # B — stored once in the Keychain, then no env vars needed
+  xcrun notarytool store-credentials "$KEYCHAIN_PROFILE"
 
 EOF
     exit 2
 fi
 
 echo "==> Submitting to Apple for notarization (this takes a few minutes)"
-xcrun notarytool submit "$DMG_PATH" --keychain-profile "$KEYCHAIN_PROFILE" --wait
+xcrun notarytool submit "$DMG_PATH" "${NOTARY_ARGS[@]}" --wait
 
 echo "==> Stapling the ticket"
 xcrun stapler staple "$DMG_PATH"

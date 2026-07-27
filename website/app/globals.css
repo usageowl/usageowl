@@ -274,6 +274,19 @@ body {
     scroll-behavior: smooth;
   }
 
+  /* install dropdown — grows from the button it hangs off */
+  @keyframes install-pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+    }
+  }
+
+  .install-pop {
+    animation: install-pop-in 0.17s var(--ease-out);
+    transform-origin: top right;
+  }
+
   @keyframes hero-fade-up {
     from {
       opacity: 0;

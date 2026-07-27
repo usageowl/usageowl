@@ -1,10 +1,18 @@
 /** Canonical origin. Single source for metadataBase, sitemap and robots. */
 export const SITE_URL = 'https://usageowl.com';
 
-export const GITHUB_URL = 'https://github.com/usageowl/usageowl';
-export const RELEASES_URL = 'https://github.com/usageowl/usageowl/releases';
-export const LATEST_RELEASE_URL = 'https://github.com/usageowl/usageowl/releases/latest';
-export const ISSUES_URL = 'https://github.com/usageowl/usageowl/issues';
+/** owner/repo — single source for the API lookups and every link below. */
+export const GITHUB_REPO = 'usageowl/usageowl';
+
+export const GITHUB_URL = `https://github.com/${GITHUB_REPO}`;
+
+/** Minimum macOS, shown in the install dropdown. Mirrors LSMinimumSystemVersion
+ *  in app/build_app.sh — if that changes, change this. */
+export const MIN_MACOS = 'macOS 14+';
+
+export const RELEASES_URL = `${GITHUB_URL}/releases`;
+export const LATEST_RELEASE_URL = `${RELEASES_URL}/latest`;
+export const ISSUES_URL = `${GITHUB_URL}/issues`;
 
 export const SPEC_ROWS: Array<[string, string]> = [
   ['APP', 'USAGEOWL'],

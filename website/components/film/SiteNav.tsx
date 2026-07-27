@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react';
 import { gsap, ScrollTrigger, afterFonts } from './gsap';
 import OwlLogo from '../OwlLogo';
 import BuyCoffee from './BuyCoffee';
-import { LATEST_RELEASE_URL } from '../content';
+import InstallMenu from './InstallMenu';
+import type { ReleaseInfo } from '@/lib/release';
 
 const LINKS = [
   { href: '#watch', label: 'features', id: 'watch' },
@@ -22,7 +23,7 @@ const THEMES: Record<string, string> = {
  * (paper text on dark, ink on paper/amber); a fill tracks scroll progress.
  * State is computed deterministically from the scenes' pinned ranges.
  */
-export default function SiteNav() {
+export default function SiteNav({ release }: { release: ReleaseInfo }) {
   const root = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -131,14 +132,7 @@ export default function SiteNav() {
           {/* the two CTAs pair tighter than the nav's link rhythm */}
           <div className="flex items-center gap-2.5">
             <BuyCoffee variant="nav" />
-            <a
-              href={LATEST_RELEASE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-green !px-3.5 !py-1.5 !text-xs"
-            >
-              install
-            </a>
+            <InstallMenu release={release} />
           </div>
         </nav>
       </div>

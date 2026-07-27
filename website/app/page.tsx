@@ -9,15 +9,20 @@ import Privacy from '@/components/film/Privacy';
 import Climax from '@/components/film/Climax';
 import Faq from '@/components/film/Faq';
 import Footer from '@/components/film/Footer';
+import { getLatestRelease } from '@/lib/release';
 
-export default function Home() {
+export default async function Home() {
+  // Resolved at build time (output: 'export'), so the install dropdown ships
+  // with the real version baked in — no client fetch, no loading state.
+  const release = await getLatestRelease();
+
   return (
     <>
       <a href="#providers" className="skip-link">
         Skip to content
       </a>
       <Loader />
-      <SiteNav />
+      <SiteNav release={release} />
       <main id="main">
         {/* static hero — the download CTA leads */}
         <Hero />
