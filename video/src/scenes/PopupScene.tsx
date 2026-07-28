@@ -18,12 +18,14 @@ import { color, font, sec } from '../theme';
  * decides whether the product is real, and a mock-up would undercut that.
  */
 
+// Retimed for a 5.5s scene (was 7.5s). The five land in 1.8s rather than 3s —
+// fast enough to read as a list, not a queue.
 const CALLOUTS: { label: string; detail: string; at: number }[] = [
-  { label: 'Claude', detail: '5-hour · weekly · spend', at: 1.5 },
-  { label: 'Kimi', detail: 'weekly quota · rate window', at: 2.1 },
-  { label: 'Codex', detail: 'primary · secondary', at: 2.7 },
-  { label: 'Copilot', detail: 'premium interactions', at: 3.3 },
-  { label: 'Moonshot', detail: 'pay-as-you-go balance', at: 3.9 },
+  { label: 'Claude', detail: '5-hour · weekly · spend', at: 0.75 },
+  { label: 'Kimi', detail: 'weekly quota · rate window', at: 1.1 },
+  { label: 'Codex', detail: 'primary · secondary', at: 1.45 },
+  { label: 'Copilot', detail: 'premium interactions', at: 1.8 },
+  { label: 'Moonshot', detail: 'pay-as-you-go balance', at: 2.15 },
 ];
 
 export const PopupScene: React.FC = () => {
@@ -36,12 +38,12 @@ export const PopupScene: React.FC = () => {
   // the popup is 940px tall in a 1080 frame, and the first pass used 1180px
   // with a -120px drift, which cropped the header and the footer clean off.
   // Whatever the drift is, height + |drift| must stay under 1080.
-  const drift = interpolate(frame, [0, sec(7.5)], [0, -46], {
+  const drift = interpolate(frame, [0, sec(5.5)], [0, -40], {
     extrapolateRight: 'clamp',
   });
 
   const notifyIn = spring({
-    frame: frame - sec(5.2),
+    frame: frame - sec(2.9),
     fps,
     config: { damping: 200, mass: 0.7 },
   });

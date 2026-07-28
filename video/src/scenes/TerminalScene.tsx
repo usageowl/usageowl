@@ -1,56 +1,82 @@
-import { useCurrentFrame, interpolate, AbsoluteFill } from 'remotion';
+import { useCurrentFrame, interpolate, spring, useVideoConfig, AbsoluteFill } from 'remotion';
 import { color, font, sec } from '../theme';
 
 /**
- * 0:00–0:06.5 — the hook.
+ * 0:00–4.5 — the hook, rewritten.
  *
- * A Claude Code session doing real work, then the rate limit. The error lands
- * at ~3.2s and then NOTHING moves for over a second. That hold is the whole
- * point of the scene: it's the feeling of being stopped mid-thought, and any
- * motion during it would undercut the thing the product exists to prevent.
+ * The first cut spent 6.5s here and argued with itself: the error printed
+ * "resets in 41 minutes" while the caption claimed "You had no warning." The
+ * frame WAS the warning, so the line contradicted the image.
+ *
+ * The real insight is that the warning arrives *at* the wall rather than
+ * before it, which is also what the menu-bar scene then pays off. That is what
+ * this scene now says, in 4.5s instead of 6.5:
+ *
+ *   0.0–1.1  command types out — live work, not a static list
+ *   1.1–1.9  output lines rapid-fire
+ *   1.9      the wall SLAMS in, everything above dims, cursor dies
+ *   2.4–4.5  "Told at the wall. Not before it."
  */
 
-const LINES: { text: string; color: string; at: number }[] = [
-  { text: '$ claude "refactor the auth module"', color: color.tpaper, at: 0.35 },
-  { text: '  Reading src/auth/session.ts…', color: color.tdim, at: 1.15 },
-  { text: '  Reading src/auth/tokens.ts…', color: color.tdim, at: 1.6 },
-  { text: '  Editing src/auth/session.ts', color: color.tgreen, at: 2.1 },
-  { text: '  Editing src/auth/middleware.ts', color: color.tgreen, at: 2.55 },
+const COMMAND = '$ claude "refactor the auth module"';
+
+const OUTPUT: { text: string; color: string; at: number }[] = [
+  { text: '  Editing src/auth/session.ts', color: color.tgreen, at: 1.15 },
+  { text: '  Editing src/auth/tokens.ts', color: color.tgreen, at: 1.38 },
+  { text: '  Editing src/auth/middleware.ts', color: color.tgreen, at: 1.61 },
 ];
 
-const ERROR_AT = 3.2;
+const WALL_AT = 1.9;
 
 export const TerminalScene: React.FC = () => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
-  // The window settles in over the first ~18 frames, then holds perfectly
-  // still — a drifting window would fight the freeze later in the scene.
-  const enter = interpolate(frame, [0, 18], [0, 1], {
+  const enter = interpolate(frame, [0, 10], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  const errorShown = frame >= sec(ERROR_AT);
+  // Typewriter on the command only. A static line reads as a screenshot;
+  // watching it type reads as someone actually working, which is what has to
+  // be interrupted for the cut to land.
+  const typed = Math.floor(
+    interpolate(frame, [sec(0.2), sec(1.05)], [0, COMMAND.length], {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }),
+  );
 
-  // Cursor blinks while working, then stops dead when the error lands. A
-  // blinking cursor after the failure would read as "still alive".
-  const cursorOn = !errorShown && Math.floor(frame / 16) % 2 === 0;
+  const hit = frame >= sec(WALL_AT);
+
+  // Punch: overshoot then settle. The one place in the video where motion is
+  // violent, because it's the moment the work dies.
+  const slam = spring({
+    frame: frame - sec(WALL_AT),
+    fps,
+    config: { damping: 11, mass: 0.4, stiffness: 190 },
+  });
+
+  const cursorOn = !hit && frame > sec(0.2) && Math.floor(frame / 14) % 2 === 0;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: color.ink, justifyContent: 'center', alignItems: 'center' }}>
+    <AbsoluteFill
+      style={{ backgroundColor: color.ink, justifyContent: 'center', alignItems: 'center' }}
+    >
       <div
         style={{
-          width: 1180,
+          width: 1150,
           borderRadius: 16,
           overflow: 'hidden',
           backgroundColor: color.term,
           border: `1px solid ${color.tline}`,
           boxShadow: '0 60px 140px -40px rgba(0,0,0,0.75)',
           opacity: enter,
-          transform: `translateY(${(1 - enter) * 26}px)`,
+          transform: `translateY(${(1 - enter) * 18}px)`,
+          // The whole window recoils a touch when the wall hits.
+          filter: hit ? `brightness(${1 - 0.1 * (1 - Math.min(slam, 1))})` : 'none',
         }}
       >
-        {/* title bar */}
         <div
           style={{
             display: 'flex',
@@ -77,74 +103,99 @@ export const TerminalScene: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ padding: '30px 34px 38px', fontFamily: font.mono, fontSize: 25, lineHeight: 1.85 }}>
-          {LINES.map((line) => {
-            const visible = frame >= sec(line.at);
-            return (
-              <div
-                key={line.text}
-                style={{
-                  color: line.color,
-                  opacity: visible ? 1 : 0,
-                  // Dim the work once it's been cut off — the session is over.
-                  filter: errorShown ? 'opacity(0.42)' : 'none',
-                  transition: 'none',
-                }}
-              >
-                {line.text}
-              </div>
-            );
-          })}
+        <div
+          style={{
+            padding: '30px 34px 34px',
+            fontFamily: font.mono,
+            fontSize: 26,
+            lineHeight: 1.8,
+            // Once the wall hits, the work above is spent.
+            filter: hit ? 'opacity(0.3)' : 'none',
+          }}
+        >
+          <div style={{ color: color.tpaper }}>
+            {COMMAND.slice(0, typed)}
+            {!hit && typed < COMMAND.length ? '▋' : ''}
+          </div>
 
-          {errorShown ? (
-            <div style={{ marginTop: 26 }}>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 14,
-                  padding: '14px 22px',
-                  borderRadius: 10,
-                  backgroundColor: 'rgba(220,38,38,0.14)',
-                  border: `1px solid rgba(220,38,38,0.5)`,
-                  // Snap in at full size. A spring here would feel playful,
-                  // and nothing about hitting a rate limit is playful.
-                  opacity: interpolate(frame, [sec(ERROR_AT), sec(ERROR_AT) + 3], [0, 1], {
-                    extrapolateLeft: 'clamp',
-                    extrapolateRight: 'clamp',
-                  }),
-                }}
-              >
-                <span style={{ color: color.red, fontSize: 27 }}>✕</span>
-                <span style={{ color: '#FCA5A5', fontSize: 25 }}>
-                  5-hour limit reached · resets in 41 minutes
-                </span>
-              </div>
+          {OUTPUT.map((line) => (
+            <div key={line.text} style={{ color: line.color, opacity: frame >= sec(line.at) ? 1 : 0 }}>
+              {line.text}
             </div>
-          ) : (
-            <div style={{ color: color.tpaper, height: 46, fontSize: 25 }}>
-              {cursorOn ? '▋' : ' '}
-            </div>
-          )}
+          ))}
+
+          {!hit && <div style={{ color: color.tpaper, height: 47 }}>{cursorOn ? '▋' : ' '}</div>}
         </div>
+
+        {/* the wall — full-width bar across the base of the window */}
+        {hit && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              padding: '22px 34px',
+              backgroundColor: 'rgba(220,38,38,0.16)',
+              borderTop: `1px solid rgba(220,38,38,0.55)`,
+              transform: `scaleY(${Math.min(slam, 1.06)})`,
+              transformOrigin: 'bottom',
+            }}
+          >
+            <span style={{ color: color.red, fontSize: 30 }}>✕</span>
+            <span style={{ color: '#FCA5A5', fontFamily: font.mono, fontSize: 27 }}>
+              5-hour limit reached · resets in 41 minutes
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* The line only appears during the dead air, so the silence has a caption. */}
+      {/*
+        The payoff line. Deliberately NOT "you had no warning" — the bar above
+        is a warning. The problem is when it arrives.
+      */}
       <div
         style={{
-          marginTop: 44,
-          fontFamily: font.mono,
-          fontSize: 21,
-          letterSpacing: '0.16em',
-          textTransform: 'uppercase',
-          color: color.tdim,
-          opacity: interpolate(frame, [sec(4.5), sec(5.1)], [0, 1], {
+          marginTop: 52,
+          textAlign: 'center',
+          opacity: interpolate(frame, [sec(2.4), sec(2.85)], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           }),
+          transform: `translateY(${interpolate(frame, [sec(2.4), sec(2.85)], [14, 0], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          })}px)`,
         }}
       >
-        You had no warning.
+        <div
+          style={{
+            fontFamily: font.display,
+            fontSize: 62,
+            letterSpacing: '0.01em',
+            textTransform: 'uppercase',
+            color: color.tpaper,
+            lineHeight: 1,
+          }}
+        >
+          Told at the wall.
+        </div>
+        <div
+          style={{
+            marginTop: 10,
+            fontFamily: font.display,
+            fontSize: 62,
+            letterSpacing: '0.01em',
+            textTransform: 'uppercase',
+            color: color.red,
+            lineHeight: 1,
+            opacity: interpolate(frame, [sec(2.9), sec(3.3)], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
+          }}
+        >
+          Not before it.
+        </div>
       </div>
     </AbsoluteFill>
   );

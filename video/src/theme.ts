@@ -40,14 +40,14 @@ export const sec = (s: number) => Math.round(s * FPS);
  * makes it obvious at a glance that the durations sum to 25s.
  */
 export const beats = {
-  terminal: { from: 0, duration: 6.5 },
-  menubar: { from: 6.5, duration: 3 },
-  popup: { from: 9.5, duration: 7.5 },
-  statement: { from: 17, duration: 4 },
-  end: { from: 21, duration: 4 },
+  terminal: { from: 0, duration: 4.5 },
+  menubar: { from: 4.5, duration: 2.5 },
+  popup: { from: 7, duration: 5.5 },
+  statement: { from: 12.5, duration: 2.5 },
+  end: { from: 15, duration: 3.5 },
 } as const;
 
-export const TOTAL_SECONDS = 25;
+export const TOTAL_SECONDS = 18.5;
 
 /** Matches --ease-out on the site: cubic-bezier(0.2, 0.7, 0.2, 1). */
 export const EASE_OUT = [0.2, 0.7, 0.2, 1] as const;

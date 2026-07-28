@@ -50,7 +50,7 @@ export const MenuBarScene: React.FC = () => {
   const rise = spring({ frame, fps, config: { damping: 200, mass: 0.6 } });
 
   // The amber readout pulses once, right as the eye lands on it.
-  const pulse = interpolate(frame, [sec(0.9), sec(1.25), sec(1.6)], [1, 1.12, 1], {
+  const pulse = interpolate(frame, [sec(0.55), sec(0.85), sec(1.15)], [1, 1.12, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -156,7 +156,7 @@ export const MenuBarScene: React.FC = () => {
           letterSpacing: '0.16em',
           textTransform: 'uppercase',
           color: color.fade,
-          opacity: interpolate(frame, [sec(1.5), sec(2.0)], [0, 1], {
+          opacity: interpolate(frame, [sec(1.05), sec(1.45)], [0, 1], {
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
           }),

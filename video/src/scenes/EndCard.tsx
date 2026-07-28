@@ -91,7 +91,7 @@ export const EndCard: React.FC = () => {
             fontWeight: 600,
             fontSize: 40,
             color: color.tpaper,
-            opacity: interpolate(frame, [sec(0.5), sec(1.0)], [0, 1], {
+            opacity: interpolate(frame, [sec(0.35), sec(0.75)], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
             }),
@@ -121,7 +121,7 @@ export const EndCard: React.FC = () => {
             display: 'flex',
             justifyContent: 'center',
             gap: 22,
-            opacity: interpolate(frame, [sec(1.5), sec(2.0)], [0, 1], {
+            opacity: interpolate(frame, [sec(1.1), sec(1.45)], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
             }),
@@ -155,7 +155,7 @@ export const EndCard: React.FC = () => {
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
             color: color.tdim,
-            opacity: interpolate(frame, [sec(2.0), sec(2.5)], [0, 1], {
+            opacity: interpolate(frame, [sec(1.6), sec(1.95)], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
             }),

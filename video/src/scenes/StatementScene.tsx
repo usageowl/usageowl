@@ -71,7 +71,7 @@ export const StatementScene: React.FC = () => {
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'rgba(17,24,39,0.65)',
-              opacity: interpolate(frame, [sec(1.6), sec(2.1)], [0, 1], {
+              opacity: interpolate(frame, [sec(1.05), sec(1.4)], [0, 1], {
                 extrapolateLeft: 'clamp',
                 extrapolateRight: 'clamp',
               }),

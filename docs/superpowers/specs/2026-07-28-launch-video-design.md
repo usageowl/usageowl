@@ -14,7 +14,7 @@ within three seconds and know where to get the fix by the end.
 | Decision | Choice | Why |
 | --- | --- | --- |
 | Aspect ratio | 1920×1080, 16:9 | Widest reuse from one render: site embed, PH gallery, README, X timeline. Vertical would gain phone feeds but lose every other surface. |
-| Length | 25s @ 30fps (750 frames) | Long enough for problem → proof → ask; short enough to hold a cold viewer. |
+| Length | 18.5s @ 30fps (555 frames) | Recut from 25s. The video-ad-generator skill's PAS timing puts the problem beat at 2-3s; the first cut spent 6.5s there. Every scene was tightened. |
 | Audio | None | No licensed track available, and social autoplays muted. Motion and type carry it. A track can be laid over the render later. |
 | Narrative | Problem → relief | A feature tour explains what it does; this makes someone *feel* why it exists. Reuses the site's "Stop guessing. Start watching." so video and landing page reinforce each other. |
 | Product shots | Real PNGs, not mockups | `popup.png` and `notify.png` ship on the site already. This is the shot where a viewer decides the product is real; a mockup would undercut that. |
@@ -31,11 +31,11 @@ video/src/
   LaunchVideo.tsx    timeline only — sequences scenes, owns the dip-to-black transitions
   theme.ts           brand tokens + the beats table (every cut point in one place)
   scenes/
-    TerminalScene    0:00–6.5   session dies on a rate limit
-    MenuBarScene     6.5–9.5    the same 91% was in the menu bar all along
-    PopupScene       9.5–17     the real popup, five providers
-    StatementScene   17–21      STOP GUESSING. / START WATCHING.
-    EndCard          21–25      wordmark, usageowl.com, free · MIT · no telemetry
+    TerminalScene    0:00–4.5   typewriter, the wall slams, "Told at the wall."
+    MenuBarScene     4.5–7.0    the same 91% was in the menu bar all along
+    PopupScene       7.0–12.5   the real popup, five providers
+    StatementScene   12.5–15.0  STOP GUESSING. / START WATCHING.
+    EndCard          15.0–18.5  wordmark, usageowl.com, free · MIT · no telemetry
 ```
 
 `theme.ts` holds every cut point in one `beats` table so the video can be
@@ -67,6 +67,13 @@ Recorded because they are the failure modes worth checking on any future edit:
    under the owl item so the eye lands on the 91%.
 4. **Fonts pulled ~70 network requests per frame.** Weights and subsets are now
    pinned to exactly what the scenes use.
+5. **The opening argued with itself.** The error printed "resets in 41 minutes"
+   while the caption claimed "You had no warning" — the frame *was* a warning.
+   The complaint is about *when* it arrives, so the line is now "Told at the
+   wall. Not before it.", which also sets up the menu-bar reveal.
+6. **The problem beat ran 6.5s.** More than double the 2-3s the PAS structure
+   allows. Now 4.5s, with a typewriter on the command so it reads as live work
+   being interrupted rather than a static list appearing.
 
 ## Verification
 
