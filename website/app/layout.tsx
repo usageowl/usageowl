@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Bangers, Poppins, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { SITE_URL } from '../components/content';
@@ -65,7 +66,21 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/*
+          DataFast — site analytics. In the root layout so it loads on every
+          route. This measures the marketing site only; the app itself still
+          ships no analytics and no telemetry, which is what the Privacy
+          section and the README are claiming.
+        */}
+        <Script
+          src="https://datafa.st/js/script.js"
+          data-website-id="dfid_BMX73NM35pYcva7hZiZIw"
+          data-domain="usageowl.com"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }
