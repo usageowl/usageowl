@@ -25,7 +25,7 @@ export default async function Home() {
       <SiteNav release={release} />
       <main id="main">
         {/* static hero — the download CTA leads */}
-        <Hero />
+        <Hero release={release} />
         <Providers />
         {/* film 1: the threshold count */}
         <Thresholds />

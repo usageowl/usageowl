@@ -1,12 +1,13 @@
 import GaugeRing from './GaugeRing';
-import { GITHUB_URL, LATEST_RELEASE_URL } from '../content';
+import { GITHUB_URL, MIN_MACOS } from '../content';
+import type { ReleaseInfo } from '@/lib/release';
 
 /**
  * 01 — HERO (static). The download CTA leads the page: amber mark, the
  * free-forever statement, credentials line, buttons, terminal install strip,
  * and the huge cropped O resting at 0% below the fold — calm.
  */
-export default function Hero() {
+export default function Hero({ release }: { release: ReleaseInfo }) {
   return (
     <section id="top" className="relative min-h-screen overflow-hidden bg-bg text-ink" aria-label="UsageOwl">
       {/* huge cropped O below the viewport, arc at 0% */}
@@ -58,12 +59,15 @@ export default function Hero() {
         </p>
 
         <div className="hero-in mt-10 flex flex-wrap items-center gap-4" style={{ ['--d' as string]: '1.88s' }}>
-          <a
-            href={LATEST_RELEASE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-green"
-          >
+          {/*
+            Straight to the file, not to the releases page. GitHub serves the
+            asset with `content-disposition: attachment`, so this starts the
+            download in place — no tab, no intermediate page, nothing to hunt
+            for. Unlike the nav's install button this opens no menu: the hero
+            CTA should be one click, and the strip below already states the
+            version, OS floor and size that a menu would have carried.
+          */}
+          <a href={release.dmgUrl} download className="btn btn-green">
             Download for macOS
             <span className="cta-arrow" aria-hidden="true">
               →
@@ -90,8 +94,10 @@ export default function Hero() {
           <span className="font-semibold text-tgreen" aria-hidden="true">
             ✓
           </span>
-          <span className="tnum">Signed &amp; notarized by Apple</span>
-          <span className="hidden text-tdim sm:inline">· universal · 4.8 MB</span>
+          <span className="tnum">UsageOwl {release.version} · Signed &amp; notarized</span>
+          <span className="tnum hidden text-tdim sm:inline">
+            · {MIN_MACOS} · Universal · {release.size}
+          </span>
         </div>
 
         {/* the product, live: the actual menu bar popup */}
