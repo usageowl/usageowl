@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap, ScrollTrigger, afterFonts } from './gsap';
 import OwlLogo from '../OwlLogo';
-import BuyCoffee from './BuyCoffee';
+// import BuyCoffee from './BuyCoffee';  // hidden until Stripe is configured
 import InstallMenu from './InstallMenu';
 import type { ReleaseInfo } from '@/lib/release';
 
@@ -129,9 +129,14 @@ export default function SiteNav({ release }: { release: ReleaseInfo }) {
               {l.label}
             </a>
           ))}
-          {/* the two CTAs pair tighter than the nav's link rhythm */}
+          {/*
+            Tip jar hidden until Stripe is configured — without a key the
+            checkout call answers "Payments are not configured yet.", which is
+            a worse first impression than no button at all. To restore:
+            uncomment the import above and the line below.
+          */}
           <div className="flex items-center gap-2.5">
-            <BuyCoffee variant="nav" />
+            {/* <BuyCoffee variant="nav" /> */}
             <InstallMenu release={release} />
           </div>
         </nav>

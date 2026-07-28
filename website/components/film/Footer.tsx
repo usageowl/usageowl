@@ -1,5 +1,5 @@
 import { GITHUB_URL, ISSUES_URL, RELEASES_URL } from '../content';
-import BuyCoffee from './BuyCoffee';
+// import BuyCoffee from './BuyCoffee';  // hidden until Stripe is configured
 
 /**
  * Footer — wordmark, project links, grid floor, affiliation note.
@@ -45,7 +45,9 @@ export default function Footer() {
                 issues
               </a>
             </nav>
-            <BuyCoffee />
+            {/* Tip jar hidden until Stripe is configured — uncomment this and
+                the import above to bring it back. */}
+            {/* <BuyCoffee /> */}
           </div>
         </div>
         <div className="mt-10 flex flex-col gap-2 border-t border-line pt-6 font-mono text-[11px] text-dim sm:flex-row sm:justify-between">
