@@ -13,6 +13,18 @@ website/out/
 website/.wrangler/
 website/tsconfig.tsbuildinfo
 
+# iCloud/Finder duplicate build outputs ("out 2", "out 3", …). The Desktop is
+# FileProvider-synced, so these appear on their own and are never wanted.
+website/out[ ]*[0-9]*/
+*[ ][0-9].app/
+
+# Remotion video (source is tracked; renders and deps are not —
+# an .mp4 in git history is permanent weight for a file that belongs
+# on the release page)
+video/node_modules/
+video/out/
+video/.remotion/
+
 # Env / secrets
 .env
 .env.local
