@@ -46,7 +46,8 @@ How each provider integration works. All endpoints are the providers' own; Usage
   ]
   ```
   **The model-scoped entry is the only place Fable appears.** `seven_day_opus`, `seven_day_sonnet`, `seven_day_cowork`, `seven_day_omelette`, `tangelo`, `iguana_necktie`, `omelette_promotional`, `nimbus_quill`, `cinder_cove`, `amber_ladder` are all `null`, so scanning top-level keys for a model name cannot find it. `resets_at` is nullable on scoped windows.
-  Legacy fallback (still what the OAuth endpoint returns): top-level `five_hour` / `seven_day` objects with `utilization` + `resets_at`; the parser accepts 0–1 and 0–100 scales and alternate key names.
+  Legacy fallback (still what the OAuth endpoint returns): top-level `five_hour` / `seven_day` objects with `utilization` + `resets_at`, and alternate key names.
+- **Percent scale — do not guess it.** Every observed reading is 0–100: `percent: 4` and `utilization: 4.0` both render as "4% used" in claude.ai's own UI. The parser once treated `value <= 1.0` as a 0–1 fraction and rescaled it, which silently turned a genuine **1% into 100%** — a full red bar plus a false 90%-of-quota notification. `ClaudeProvider.asPercent` now rescales only when the value is *strictly* between 0 and 1, so 1.0 means 1%. That errs toward under-reporting rather than crying wolf.
 - **Extra usage** (real money, claude.ai only, verified 2026-07): two shapes for the same figures —
   ```json
   "spend": {"used":{"amount_minor":29341,"currency":"USD","exponent":2},

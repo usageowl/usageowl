@@ -118,6 +118,20 @@ struct ClaudeProvider: AIProvider {
         }
     }
 
+    /// Raw OAuth usage body, for `--probe-claude`. The two endpoints report the
+    /// same windows in different shapes, and the percent scale has to be read
+    /// off real responses rather than assumed.
+    func debugOAuthUsage() async -> String {
+        guard let credsData = KeychainHelper.readData(service: Self.oauthService, account: nil),
+              let creds = try? JSONSerialization.jsonObject(with: credsData) as? [String: Any],
+              let oauth = creds["claudeAiOauth"] as? [String: Any],
+              let accessToken = oauth["accessToken"] as? String else { return "no credentials" }
+        guard let (data, response) = try? await usageRequest(accessToken: accessToken) else {
+            return "request failed"
+        }
+        return "HTTP \(response.statusCode): \(String(data: data, encoding: .utf8) ?? "<binary>")"
+    }
+
     private func usageRequest(accessToken: String) async throws -> (Data, HTTPURLResponse) {
         try await HTTP.get("https://api.anthropic.com/api/oauth/usage", headers: [
             "Authorization": "Bearer \(accessToken)",
@@ -193,8 +207,11 @@ struct ClaudeProvider: AIProvider {
             var windows: [UsageWindow] = []
             for limit in limits {
                 guard let raw = flexibleDouble(limit["percent"] ?? limit["utilization"]) else { continue }
+                // Already a percentage — no 0–1 rescale here. Guessing the scale
+                // from the value turns a genuine 1% into 100%, because 1.0 is
+                // simultaneously "1 percent" and "the whole of a 0–1 range".
                 windows.append(UsageWindow(label: Self.limitLabel(limit),
-                                           usedPercent: min(raw <= 1.0 ? raw * 100 : raw, 100),
+                                           usedPercent: min(max(raw, 0), 100),
                                            resetDate: Format.date(from: limit["resets_at"] as? String)))
             }
             if !windows.isEmpty {
@@ -216,7 +233,7 @@ struct ClaudeProvider: AIProvider {
                 let raw = flexibleDouble(dict["utilization"] ?? dict["used_percent"]
                     ?? dict["usedPercent"] ?? dict["percent"])
                 guard let raw else { break }
-                let pct = raw <= 1.0 ? raw * 100 : raw  // tolerate 0–1 or 0–100 scales
+                let pct = Self.asPercent(raw)
                 let resetString = (dict["resets_at"] ?? dict["reset_at"]
                     ?? dict["resetAt"] ?? dict["reset"]) as? String
                 windows.append(UsageWindow(label: label, usedPercent: min(pct, 100),
@@ -232,7 +249,7 @@ struct ClaudeProvider: AIProvider {
                   let dict = value as? [String: Any],
                   let raw = flexibleDouble(dict["utilization"] ?? dict["used_percent"]
                       ?? dict["usedPercent"] ?? dict["percent"]) else { continue }
-            let pct = raw <= 1.0 ? raw * 100 : raw
+            let pct = Self.asPercent(raw)
             let resetString = (dict["resets_at"] ?? dict["reset_at"]
                 ?? dict["resetAt"] ?? dict["reset"]) as? String
             let window = UsageWindow(label: "Fable (7 day)", usedPercent: min(pct, 100),
@@ -247,6 +264,23 @@ struct ClaudeProvider: AIProvider {
         return snapshot(windows: windows,
                         spend: chargedSpend(in: root),
                         error: windows.isEmpty ? "No quota data in Claude response" : nil)
+    }
+
+    /// Normalises a utilisation reading to 0–100.
+    ///
+    /// Only a value *strictly* between 0 and 1 is treated as a fraction. The
+    /// previous rule (`<= 1.0` means fraction) turned a real 1% into 100%,
+    /// because 1.0 reads as both "1 percent" and "all of a 0–1 range" — which
+    /// showed a full red bar and fired the 90%-of-quota alert at 1% usage.
+    ///
+    /// Every response observed from claude.ai uses 0–100 (`percent: 4` and
+    /// `utilization: 4.0` both render as 4% in claude.ai's own UI), so the
+    /// fraction branch is a safety net, not the expected case. It also fails in
+    /// the harmless direction: a genuine 0–1 reading sitting exactly at 1.0
+    /// under-reports as 1% rather than crying wolf at 100%.
+    static func asPercent(_ raw: Double) -> Double {
+        let scaled = (raw > 0 && raw < 1) ? raw * 100 : raw
+        return min(max(scaled, 0), 100)
     }
 
     /// Human label for one `limits` entry.

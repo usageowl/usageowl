@@ -113,6 +113,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             print("transport: FAIL — \(error.localizedDescription)")
         }
 
+        // Guard the exact regression that shipped: 1.0 must mean 1%, not 100%.
+        print("\n--- percent scale ---")
+        let cases: [(Double, Double)] = [(0, 0), (0.5, 50), (1, 1), (2, 2), (4, 4), (99, 99), (100, 100), (150, 100)]
+        for (input, expected) in cases {
+            let got = ClaudeProvider.asPercent(input)
+            print("  asPercent(\(input)) = \(got)  \(got == expected ? "ok" : "FAIL expected \(expected)")")
+        }
+
+        print("\n--- OAuth endpoint raw (percent scale check) ---")
+        print(await ClaudeProvider().debugOAuthUsage().prefix(900))
+
         // The parsed result — what the popover will actually render.
         let snapshot = await ClaudeProvider().fetchUsage()
         print("\n--- parsed snapshot ---")
